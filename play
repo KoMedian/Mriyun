@@ -66,4 +66,4 @@ async def play(ctx, url: str):
     voice.play(discord.FFmpegPCMAudio(filename, **ffmpeg_options))
     await ctx.send(f"Playing music from {url}!")
 
-bot.run("MTI3NzExMjI2NzUxMDUxNzgyMg.Gmm1eu.pKbaDCcOVSACI9CngmDs4lGjD1uKHsIGK3hw1c")
+bot.run("Enter your discord bot token")
