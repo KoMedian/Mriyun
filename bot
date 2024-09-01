@@ -1,0 +1,44 @@
+import discord
+from discord import app_commands
+from discord.ext import commands
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+
+# Replace with your Discord bot token and Spotify credentials
+DISCORD_TOKEN = 'Enter the Token'
+SPOTIFY_CLIENT_ID = 'Enter Spotify Id'
+SPOTIFY_CLIENT_SECRET = 'Enter Client Secret'
+
+# Set up Spotify client
+spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+    client_id=SPOTIFY_CLIENT_ID,
+    client_secret=SPOTIFY_CLIENT_SECRET
+))
+
+# Set up the Discord bot
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Define a slash command to search for a Spotify track
+@bot.tree.command(name="spotify_search", description="Search for a track on Spotify")
+@app_commands.describe(track_name="The name of the track you want to search")
+async def spotify_search(interaction: discord.Interaction, track_name: str):
+    results = spotify.search(q=track_name, type="track", limit=1)
+    tracks = results['tracks']['items']
+    
+    if tracks:
+        track = tracks[0]
+        track_info = f"**{track['name']}** by {', '.join(artist['name'] for artist in track['artists'])}\n"
+        track_info += f"Album: {track['album']['name']}\n"
+        track_info += f"Listen on Spotify: {track['external_urls']['spotify']}"
+        await interaction.response.send_message(track_info)
+    else:
+        await interaction.response.send_message(f"No results found for '{track_name}'")
+
+# Run the bot
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print(f"Logged in as {bot.user}")
+
+bot.run(DISCORD_TOKEN)
